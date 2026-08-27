@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة تحكم المنتجات | Dr. Mai Mahmoud</title>
+<style>
+  :root{
+    --cream:#f7f1ec;
+    --dark:#4a2e35;
+    --accent:#b5793f;
+    --danger:#b5453f;
+    --border:#e5dcd3;
+  }
+  *{box-sizing:border-box;}
+  body{
+    font-family:'Segoe UI', Tahoma, sans-serif;
+    background:var(--cream);
+    color:var(--dark);
+    margin:0;
+    padding:20px;
+  }
+  h1{font-size:20px; margin-bottom:4px;}
+  .sub{color:#8a7269; font-size:13px; margin-bottom:24px;}
+
+  /* Login box */
+  #loginBox{
+    max-width:360px;
+    margin:60px auto;
+    background:#fff;
+    border-radius:14px;
+    padding:28px;
+    box-shadow:0 10px 30px -15px rgba(0,0,0,.2);
+  }
+  #loginBox h2{margin-top:0; font-size:18px;}
+  #loginBox input{
+    width:100%;
+    padding:12px;
+    margin-bottom:12px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    font-size:14px;
+  }
+  #loginBox button{
+    width:100%;
+    padding:12px;
+    background:var(--dark);
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    font-size:15px;
+    cursor:pointer;
+  }
+  #loginError{color:var(--danger); font-size:13px; margin-top:8px; display:none;}
+
+  /* Admin panel */
+  #panel{display:none; max-width:900px; margin:0 auto;}
+  .topbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;}
+  .logout-btn{background:none; border:1px solid var(--border); border-radius:8px; padding:8px 14px; cursor:pointer; font-size:13px;}
+
+  .card{background:#fff; border-radius:14px; padding:20px; margin-bottom:20px; box-shadow:0 6px 20px -14px rgba(0,0,0,.15);}
+  .card h2{font-size:16px; margin-top:0; margin-bottom:16px;}
+
+  .form-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .form-grid .full{grid-column:1/-1;}
+  label{font-size:12px; color:#8a7269; display:block; margin-bottom:4px;}
+  input, select{
+    width:100%;
+    padding:10px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    font-size:14px;
+  }
+  .save-btn{
+    margin-top:16px;
+    padding:11px 24px;
+    background:var(--accent);
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:14px;
+  }
+  .cancel-edit{
+    margin-top:16px;
+    margin-inline-start:8px;
+    padding:11px 20px;
+    background:none;
+    border:1px solid var(--border);
+    border-radius:8px;
+    cursor:pointer;
+    font-size:14px;
+    display:none;
+  }
+
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  th, td{padding:10px 8px; text-align:right; border-bottom:1px solid var(--border);}
+  th{color:#8a7269; font-weight:500;}
+  td img{width:40px; height:40px; object-fit:cover; border-radius:6px; vertical-align:middle;}
+  .row-actions button{
+    border:none;
+    background:none;
+    cursor:pointer;
+    font-size:13px;
+    padding:4px 8px;
+    border-radius:6px;
+  }
+  .row-actions .edit{color:var(--accent);}
+  .row-actions .del{color:var(--danger);}
+  #emptyMsg{color:#8a7269; font-size:13px; padding:20px 0; text-align:center; display:none;}
+  #statusMsg{font-size:13px; margin-top:10px; display:none;}
+</style>
+</head>
+<body>
+
+<div id="loginBox">
+  <h2>تسجيل الدخول</h2>
+  <input type="email" id="loginEmail" placeholder="البريد الإلكتروني">
+  <input type="password" id="loginPassword" placeholder="كلمة المرور">
+  <button id="loginBtn">دخول</button>
+  <div id="loginError"></div>
+</div>
+
+<div id="panel">
+  <div class="topbar">
+    <div>
+      <h1>لوحة تحكم المنتجات</h1>
+      <div class="sub">أي تعديل هنا يظهر في الموقع فورًا</div>
+    </div>
+    <button class="logout-btn" id="logoutBtn">تسجيل خروج</button>
+  </div>
+
+  <div class="card">
+    <h2 id="formTitle">إضافة منتج جديد</h2>
+    <div class="form-grid">
+      <div>
+        <label>اسم المنتج</label>
+        <input type="text" id="f_name" placeholder="مثال: سيروم حمض الهيالورونيك">
+      </div>
+      <div>
+        <label>التصنيف</label>
+        <select id="f_category">
+          <option value="بشرة">بشرة</option>
+          <option value="مكياج">مكياج</option>
+          <option value="عطور">عطور</option>
+          <option value="إكسسوارات">إكسسوارات</option>
+          <option value="عناية بالشعر">عناية بالشعر</option>
+        </select>
+      </div>
+      <div>
+        <label>السعر الحالي (ج.م)</label>
+        <input type="number" id="f_price" placeholder="349">
+      </div>
+      <div>
+        <label>السعر قبل الخصم (اختياري)</label>
+        <input type="number" id="f_oldPrice" placeholder="سيبيه فاضي لو مفيش خصم">
+      </div>
+      <div>
+        <label>كلمة البادچ (اختياري)</label>
+        <input type="text" id="f_badge" placeholder="مثال: خصم">
+      </div>
+      <div>
+        <label>التقييم (1-5)</label>
+        <input type="number" id="f_stars" min="1" max="5" placeholder="4">
+      </div>
+      <div>
+        <label>عدد المراجعات</label>
+        <input type="number" id="f_reviews" placeholder="118">
+      </div>
+      <div class="full">
+        <label>صورة المنتج</label>
+        <input type="text" id="f_image" placeholder="https://... (هتتملي تلقائي بعد رفع الصورة)" readonly style="background:#f5f0eb; color:#8a7269;">
+        <div style="margin-top:8px; display:flex; align-items:center; gap:12px;">
+          <label for="f_imageFile" style="display:inline-block; width:auto; background:var(--dark); color:#fff; padding:9px 18px; border-radius:8px; cursor:pointer; font-size:13px; margin:0;">
+            اختاري صورة من جهازك
+          </label>
+          <input type="file" id="f_imageFile" accept="image/*" style="display:none;">
+          <span id="uploadStatus" style="font-size:12px; color:#8a7269;"></span>
+        </div>
+        <img id="imagePreview" style="display:none; margin-top:10px; width:80px; height:80px; object-fit:cover; border-radius:8px;">
+      </div>
+    </div>
+    <button class="save-btn" id="saveBtn">حفظ المنتج</button>
+    <button class="cancel-edit" id="cancelEditBtn">إلغاء التعديل</button>
+    <div id="statusMsg"></div>
+  </div>
+
+  <div class="card">
+    <h2>المنتجات الحالية</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>صورة</th>
+          <th>الاسم</th>
+          <th>السعر</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="productsTableBody"></tbody>
+    </table>
+    <div id="emptyMsg">لا توجد منتجات مضافة بعد</div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDQbn8iLPZGZDc3lFS8taVIivb_0Dn1py4",
+    authDomain: "beauty-brand-e2c6f.firebaseapp.com",
+    projectId: "beauty-brand-e2c6f",
+    storageBucket: "beauty-brand-e2c6f.firebasestorage.app",
+    messagingSenderId: "946637878543",
+    appId: "1:946637878543:web:bb2d4246e9d6ac94883a7a"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  const loginBox = document.getElementById('loginBox');
+  const panel = document.getElementById('panel');
+  const loginError = document.getElementById('loginError');
+
+  // ==== تسجيل الدخول ====
+  document.getElementById('loginBtn').addEventListener('click', ()=>{
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    loginError.style.display = 'none';
+    auth.signInWithEmailAndPassword(email, password).catch(err=>{
+      loginError.textContent = 'بيانات الدخول غير صحيحة';
+      loginError.style.display = 'block';
+    });
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', ()=>{
+    auth.signOut();
+  });
+
+  auth.onAuthStateChanged(user=>{
+    if(user){
+      loginBox.style.display = 'none';
+      panel.style.display = 'block';
+      listenToProducts();
+    } else {
+      loginBox.style.display = 'block';
+      panel.style.display = 'none';
+    }
+  });
+
+  // ==== إدارة المنتجات ====
+  let editingId = null;
+  const IMGBB_API_KEY = '3dcabb3a8ec69458ee69a642c35af425';
+
+  // ==== رفع صورة على imgbb ====
+  document.getElementById('f_imageFile').addEventListener('change', (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const statusEl = document.getElementById('uploadStatus');
+    const preview = document.getElementById('imagePreview');
+    statusEl.textContent = 'جاري رفع الصورة...';
+    statusEl.style.color = '#8a7269';
+
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      const base64 = reader.result.split(',')[1];
+      const formData = new FormData();
+      formData.append('image', base64);
+
+      fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+        method: 'POST',
+        body: formData
+      })
+        .then(res=>res.json())
+        .then(data=>{
+          if(data.success){
+            const url = data.data.url;
+            document.getElementById('f_image').value = url;
+            preview.src = url;
+            preview.style.display = 'block';
+            statusEl.textContent = 'تم رفع الصورة ✓';
+            statusEl.style.color = '#3f8a4a';
+          } else {
+            throw new Error('upload failed');
+          }
+        })
+        .catch(err=>{
+          console.error(err);
+          statusEl.textContent = 'فشل رفع الصورة، حاولي تاني';
+          statusEl.style.color = '#b5453f';
+        });
+    };
+    reader.readAsDataURL(file);
+  });
+
+  function showStatus(msg, isError){
+    const el = document.getElementById('statusMsg');
+    el.textContent = msg;
+    el.style.color = isError ? '#b5453f' : '#3f8a4a';
+    el.style.display = 'block';
+    setTimeout(()=>{ el.style.display = 'none'; }, 2500);
+  }
+
+  function clearForm(){
+    document.getElementById('f_name').value = '';
+    document.getElementById('f_category').value = 'بشرة';
+    document.getElementById('f_price').value = '';
+    document.getElementById('f_oldPrice').value = '';
+    document.getElementById('f_badge').value = '';
+    document.getElementById('f_stars').value = '';
+    document.getElementById('f_reviews').value = '';
+    document.getElementById('f_image').value = '';
+    document.getElementById('f_imageFile').value = '';
+    document.getElementById('imagePreview').style.display = 'none';
+    document.getElementById('uploadStatus').textContent = '';
+    editingId = null;
+    document.getElementById('formTitle').textContent = 'إضافة منتج جديد';
+    document.getElementById('cancelEditBtn').style.display = 'none';
+  }
+
+  document.getElementById('cancelEditBtn').addEventListener('click', clearForm);
+
+  document.getElementById('saveBtn').addEventListener('click', ()=>{
+    const name = document.getElementById('f_name').value.trim();
+    const category = document.getElementById('f_category').value;
+    const price = parseFloat(document.getElementById('f_price').value);
+    const oldPriceRaw = document.getElementById('f_oldPrice').value;
+    const badge = document.getElementById('f_badge').value.trim();
+    const starsRaw = document.getElementById('f_stars').value;
+    const reviewsRaw = document.getElementById('f_reviews').value;
+    const image = document.getElementById('f_image').value.trim();
+
+    if(!name || isNaN(price) || !image){
+      showStatus('من فضلك املأي اسم المنتج والسعر ورابط الصورة', true);
+      return;
+    }
+
+    const data = {
+      name,
+      category,
+      price,
+      oldPrice: oldPriceRaw ? parseFloat(oldPriceRaw) : null,
+      badge: badge || null,
+      stars: starsRaw ? parseFloat(starsRaw) : null,
+      reviews: reviewsRaw ? parseInt(reviewsRaw) : null,
+      image
+    };
+
+    const savePromise = editingId
+      ? db.collection('products').doc(editingId).update(data)
+      : db.collection('products').add({ ...data, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+
+    savePromise.then(()=>{
+      showStatus(editingId ? 'اتحدث المنتج بنجاح' : 'اتضاف المنتج بنجاح', false);
+      clearForm();
+    }).catch(err=>{
+      console.error(err);
+      showStatus('حصل خطأ، حاولي تاني', true);
+    });
+  });
+
+  function startEdit(id, data){
+    editingId = id;
+    document.getElementById('f_name').value = data.name || '';
+    document.getElementById('f_category').value = data.category || 'بشرة';
+    document.getElementById('f_price').value = data.price ?? '';
+    document.getElementById('f_oldPrice').value = data.oldPrice ?? '';
+    document.getElementById('f_badge').value = data.badge || '';
+    document.getElementById('f_stars').value = data.stars ?? '';
+    document.getElementById('f_reviews').value = data.reviews ?? '';
+    document.getElementById('f_image').value = data.image || '';
+    if(data.image){
+      const preview = document.getElementById('imagePreview');
+      preview.src = data.image;
+      preview.style.display = 'block';
+    }
+    document.getElementById('formTitle').textContent = 'تعديل منتج';
+    document.getElementById('cancelEditBtn').style.display = 'inline-block';
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  function deleteProduct(id){
+    if(!confirm('متأكدة إنك عايزة تمسحي المنتج ده؟')) return;
+    db.collection('products').doc(id).delete().then(()=>{
+      showStatus('اتمسح المنتج', false);
+    }).catch(err=>{
+      console.error(err);
+      showStatus('حصل خطأ في المسح', true);
+    });
+  }
+
+  function listenToProducts(){
+    db.collection('products').orderBy('createdAt', 'desc').onSnapshot(snapshot=>{
+      const tbody = document.getElementById('productsTableBody');
+      const emptyMsg = document.getElementById('emptyMsg');
+      if(snapshot.empty){
+        tbody.innerHTML = '';
+        emptyMsg.style.display = 'block';
+        return;
+      }
+      emptyMsg.style.display = 'none';
+      tbody.innerHTML = snapshot.docs.map(doc=>{
+        const d = doc.data();
+        return `
+          <tr>
+            <td><img src="${d.image || ''}" alt=""></td>
+            <td>${d.name || ''}<br><span style="color:#8a7269; font-size:11px;">${d.category || ''}</span></td>
+            <td>${d.price ?? ''} ج.م</td>
+            <td class="row-actions">
+              <button class="edit" data-id="${doc.id}">تعديل</button>
+              <button class="del" data-id="${doc.id}">حذف</button>
+            </td>
+          </tr>`;
+      }).join('');
+
+      tbody.querySelectorAll('.edit').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const doc = snapshot.docs.find(d=>d.id === btn.dataset.id);
+          startEdit(doc.id, doc.data());
+        });
+      });
+      tbody.querySelectorAll('.del').forEach(btn=>{
+        btn.addEventListener('click', ()=> deleteProduct(btn.dataset.id));
+      });
+    });
+  }
+</script>
+</body>
+</html>
