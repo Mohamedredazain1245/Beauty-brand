@@ -1,0 +1,27 @@
+{
+  "name": "Dr. Mai Mahmoud Beauty Brand",
+  "short_name": "Dr. Mai Mahmoud",
+  "description": "منتجات عناية ومكياج فاخرة من دكتورة مي محمود",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F7F0EA",
+  "theme_color": "#4A2E35",
+  "orientation": "portrait-primary",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
